@@ -1,0 +1,6 @@
+name = "tpil-solutions"
+version = "0.1.0"
+defaultTargets = ["TPIL"]
+
+[[lean_lib]]
+name = "TPIL"
