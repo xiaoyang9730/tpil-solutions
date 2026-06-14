@@ -146,11 +146,34 @@ example : p ∧ ¬q → ¬(p → q) :=
         fun h₁ : p → q => show False from
             h₀.right (h₁ h₀.left)
 
--- example : ¬p → (p → q) := sorry
--- example : (¬p ∨ q) → (p → q) := sorry
--- example : p ∨ False ↔ p := sorry
--- example : p ∧ False ↔ False := sorry
--- example : (p → q) → (¬q → ¬p) := sorry
+example : ¬p → (p → q) :=
+    fun hnp : ¬p =>
+        fun hp : p => absurd hp hnp
+
+example : (¬p ∨ q) → (p → q) :=
+    fun h : ¬p ∨ q =>
+        fun hp : p =>
+            Or.elim h
+                (fun hnp : ¬p => absurd hp hnp)
+                (fun hq : q => hq)
+
+example : p ∨ False ↔ p :=
+    Iff.intro
+        (fun h : p ∨ False =>
+            Or.elim h
+                (fun hp : p => hp)
+                (False.elim))
+        (fun hp : p => Or.inl hp)
+
+example : p ∧ False ↔ False :=
+    Iff.intro
+        (fun h : p ∧ False => h.right)
+        (False.elim)
+
+example : (p → q) → (¬q → ¬p) :=
+    fun hpq : p → q =>
+        fun hnq : ¬q =>
+            fun hp => show False from hnq (hpq hp)
 
 -- Prove the following identities, replacing the sorry placeholders with actual proofs.
 -- These require classical reasoning.
