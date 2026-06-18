@@ -178,16 +178,77 @@ example : (p → q) → (¬q → ¬p) :=
 -- Prove the following identities, replacing the sorry placeholders with actual proofs.
 -- These require classical reasoning.
 
--- open Classical
+open Classical
 
--- variable (p q r : Prop)
+example : (p → q ∨ r) → ((p → q) ∨ (p → r)) :=
+    fun h : p → q ∨ r =>
+        byCases
+            (fun hp : p =>
+                Or.elim (h hp)
+                    (fun hq : q => Or.inl (fun _ : p => hq))
+                    (fun hr : r => Or.inr (fun _ : p => hr)))
+            (fun hnp : ¬p =>
+                Or.inl (fun hp : p => absurd hp hnp))
 
--- example : (p → q ∨ r) → ((p → q) ∨ (p → r)) := sorry
--- example : ¬(p ∧ q) → ¬p ∨ ¬q := sorry
--- example : ¬(p → q) → p ∧ ¬q := sorry
--- example : (p → q) → (¬p ∨ q) := sorry
--- example : (¬q → ¬p) → (p → q) := sorry
--- example : p ∨ ¬p := sorry
--- example : (((p → q) → p) → p) := sorry
+example : ¬(p ∧ q) → ¬p ∨ ¬q :=
+    fun h : ¬(p ∧ q) =>
+        Or.elim (em p)
+            (fun hp : p =>
+                have hnq : ¬q :=
+                    byContradiction
+                        (fun hnnq : ¬¬q =>
+                            suffices hq : q from absurd ⟨hp, hq⟩ h
+                            -- proof of hq is dne
+                            Or.elim (em q)
+                                (fun hq : q => hq)
+                                (fun hnq : ¬q => absurd hnq hnnq))
+                Or.inr hnq)
+            (fun hnp : ¬p =>
+                Or.inl hnp)
+
+example : ¬(p → q) → p ∧ ¬q :=
+    fun hnpq : ¬(p → q) =>
+        byCases
+            (fun hp : p =>
+                have hnq : ¬q := fun hq : q => show False from
+                    have hpq : p → q := fun _ : p => hq -- Inspired by the 'have' (from AI) below
+                    absurd hpq hnpq
+                ⟨hp, hnq⟩)
+            (fun hnp : ¬p =>
+                have hpq : p → q := fun hp : p => absurd hp hnp -- Anything can be introduced from False
+                                                                 -- This 'have' is inspired by AI
+                absurd hpq hnpq)
+
+example : (p → q) → (¬p ∨ q) :=
+    fun h : p → q =>
+        byCases
+            (fun hp : p => Or.inr (h hp))
+            (fun hnp : ¬p => Or.inl hnp)
+
+example : (¬q → ¬p) → (p → q) :=
+    fun h : ¬q → ¬p =>
+        fun hp : p => show q from
+            byContradiction
+                (fun hnq : ¬q => absurd hp (h hnq))
+
+example : p ∨ ¬p :=
+    byCases
+        (fun hp : p => Or.inl hp)
+        (fun hnp : ¬p => Or.inr hnp)
+
+example : (((p → q) → p) → p) :=
+    fun h : (p → q) → p => show p from
+        byCases
+            (fun hpq : p → q => h hpq)
+            (fun hnpq : ¬(p → q) =>
+                byCases
+                    (fun hp : p => hp)
+                    (fun hnp : ¬p =>
+                        have hpq : p → q := fun hp : p => absurd hp hnp -- Inspired by example : ¬(p → q) → p ∧ ¬q
+                                                                         -- When ¬p, p can introduce anything.
+                        absurd hpq hnpq))
 
 -- Prove ¬(p ↔ ¬p) without using classical logic.
+
+-- example : ¬(p ↔ ¬p) :=
+--     sorry
