@@ -178,6 +178,8 @@ example : (p → q) → (¬q → ¬p) :=
 -- Prove the following identities, replacing the sorry placeholders with actual proofs.
 -- These require classical reasoning.
 
+section using_classical_reasoning
+
 open Classical
 
 example : (p → q ∨ r) → ((p → q) ∨ (p → r)) :=
@@ -248,7 +250,11 @@ example : (((p → q) → p) → p) :=
                                                                          -- When ¬p, p can introduce anything.
                         absurd hpq hnpq))
 
+end using_classical_reasoning
+
 -- Prove ¬(p ↔ ¬p) without using classical logic.
 
--- example : ¬(p ↔ ¬p) :=
---     sorry
+example : ¬(p ↔ ¬p) :=
+    fun h : p ↔ ¬p =>
+        have hnp : ¬p := fun hp : p => h.mp hp hp
+        hnp (h.mpr hnp)
