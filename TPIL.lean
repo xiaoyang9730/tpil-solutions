@@ -8,3 +8,4 @@ import TPIL.Section_3_7
 -- https://lean-lang.org/theorem_proving_in_lean4/Quantifiers-and-Equality/#quantifiers-and-equality
 
 import TPIL.Section_4_4
+import TPIL.Section_4_6
